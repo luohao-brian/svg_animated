@@ -24,7 +24,7 @@ const COLOR_AXIS = '#94a3b8';
 const progress = ref(0); 
 const isPaused = ref(false);
 const TOTAL_CYCLE = 2 * Math.PI + 0.5; 
-const DURATION_MS = 80000; 
+const DURATION_MS = 20000; // 20s per cycle 
 
 const f = (x) => Math.sin(x);
 const df = (x) => Math.cos(x);

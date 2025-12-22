@@ -35,7 +35,7 @@ async function record() {
   // Get animation duration
   const durationMs = await page.evaluate(() => window.derivativeDemo.getDuration());
   // Use 15 seconds as a fixed recording length for "shorter video" with "slow movement"
-  const recordMs = 25000; 
+  const recordMs = 20000; 
   const totalFrames = Math.ceil((recordMs / 1000) * FPS);
   console.log(`[Info] Animation Cycle: ${durationMs}ms, Recording Duration: ${recordMs}ms, Total Frames: ${totalFrames}`);
 

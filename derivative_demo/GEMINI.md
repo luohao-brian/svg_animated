@@ -3,11 +3,10 @@
 ## 1. Project Specifics
 - **Animation Logic**: 
     - Driven by `progress` state.
-    - **Speed**: Extremely slow motion (80s per full cycle) for educational clarity.
-    - **Math**: Uses `f(x)=sin(x)` and `f'(x)=cos(x)`.
+    - **Speed**: 20s per full cycle.
 - **Key Files**:
     - `src/components/DerivativeVis.vue`: Core logic. Now uses **KaTeX** inside SVG `<foreignObject>` for perfect coordinate alignment.
-    - `scripts/record.js`: Captures 25s of the animation to focus on the first peak transition.
+    - `scripts/record.js`: Captures 20s of the animation.
 
 ## 2. Math Implementation
 - **Scale**: `SCALE_X = 240`, `SCALE_Y = 180`.
