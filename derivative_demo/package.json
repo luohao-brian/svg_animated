@@ -1,0 +1,24 @@
+{
+  "name": "derivative-demo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "record": "node scripts/record.js"
+  },
+  "dependencies": {
+    "katex": "^0.16.27",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "puppeteer": "^23.11.1",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.5"
+  }
+}
