@@ -71,7 +71,7 @@ const tangentLine = computed(() => {
 });
 
 const triangle = computed(() => {
-  const dx = 0.8;
+  const dx = 0.4;
   const dy = currSlope.value * dx;
   const xStart = pX.value;
   const yStart = pY.value;
@@ -79,28 +79,31 @@ const triangle = computed(() => {
   const yEnd = toSvgY1(currY.value + dy);
   return {
     path: `M ${xStart} ${yStart} L ${xCorner} ${yStart} L ${xCorner} ${yEnd} Z`,
-    dxLabelX: (xStart + xCorner) / 2 - 30,
-    dxLabelY: yStart + 5,
+    dxLabelX: (xStart + xCorner) / 2 - 15,
+    dxLabelY: yStart + 10,
     dyLabelX: xCorner + 10,
     dyLabelY: (yStart + yEnd) / 2 - 15,
   };
 });
 
+// 使用双反斜杠进行 LaTeX 转义
 const xTicks = computed(() => {
   const ticks = [];
   for (let i = 0; i <= 2.2 * Math.PI; i += Math.PI/2) {
     let label = '';
     const m = Math.round(i / (Math.PI/2));
     if (m === 0) label = '0';
-    else if (m === 1) label = String.raw`\frac{\pi}{2}`;
-    else if (m === 2) label = String.raw`\pi`;
-    else if (m === 3) label = String.raw`\frac{3\pi}{2}`;
-    else if (m === 4) label = String.raw`2\pi`;
-    else label = String.raw`\frac{${m}\pi}{2}`;
+    else if (m === 1) label = '\frac{\pi}{2}';
+    else if (m === 2) label = '\pi';
+    else if (m === 3) label = '\frac{3\pi}{2}';
+    else if (m === 4) label = '2\pi';
+    else label = `\frac{${m}\pi}{2}`;
     ticks.push({ x: toSvgX(i), label: renderMath(label) });
   }
   return ticks;
 });
+
+const yTicks = [-1, 0, 1];
 
 // ------------------------------------------------------------------
 // 动画控制
@@ -131,7 +134,10 @@ const loop = (timestamp) => {
 
 onMounted(() => {
   window.derivativeDemo = { 
-    step: (manualT) => { progress.value = (manualT % DURATION_MS) / DURATION_MS * 2 * Math.PI; }, 
+    step: (manualT) => { 
+      // 这里的 manualT 应该直接映射到进度，不受 DURATION_MS 重复影响
+      progress.value = (manualT / DURATION_MS) * 2 * Math.PI; 
+    }, 
     getDuration: () => DURATION_MS 
   };
   animationFrameId = requestAnimationFrame(loop);
@@ -169,7 +175,7 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
         <div class="flex items-center gap-4 bg-slate-900/90 px-5 py-2 rounded-xl border border-indigo-500/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
           <div class="flex flex-col items-center">
             <span class="text-[10px] text-slate-500 font-bold uppercase">当前 x</span>
-            <span class="text-lg text-slate-300" v-html="renderMath('x = ' + currX.toFixed(2))"></span>
+            <span class="text-lg text-slate-300" v-html="renderMath('x = ' + currX.toFixed(2) + '')"></span>
           </div>
           <div class="h-8 w-px bg-slate-700 mx-1"></div>
           <div class="flex items-center gap-3">
@@ -185,7 +191,7 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
              <div class="text-slate-600 px-1">＝</div>
              <div class="flex flex-col items-center">
                <span class="text-[10px] text-yellow-500 font-bold uppercase">切线斜率</span>
-               <span class="text-2xl text-yellow-400 font-black" v-html="renderMath('k = ' + currSlope.toFixed(3))"></span>
+               <span class="text-2xl text-yellow-400 font-black" v-html="renderMath('k = ' + currSlope.toFixed(3) + '')"></span>
              </div>
           </div>
         </div>
@@ -205,7 +211,6 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
           </marker>
         </defs>
 
-        <!-- 网格 -->
         <g opacity="0.08">
           <line v-for="tick in xTicks" :key="'g-'+tick.x" :x1="tick.x" y1="0" :x2="tick.x" :y2="HEIGHT" :stroke="COLOR_AXIS" />
         </g>
@@ -215,7 +220,6 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
           <line :x1="PADDING_X" :y1="GRAPH_1_CY" :x2="WIDTH-100" :y2="GRAPH_1_CY" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
           <line :x1="toSvgX(0)" :y1="GRAPH_1_CY + SCALE_Y + 20" :x2="toSvgX(0)" :y2="50" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
           
-          <!-- X轴单位 -->
           <foreignObject :x="WIDTH-100" :y="GRAPH_1_CY+5" width="50" height="50">
             <div class="text-slate-400 text-2xl font-bold" v-html="renderMath('x')"></div>
           </foreignObject>
@@ -231,7 +235,6 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
             </foreignObject>
           </g>
 
-          <!-- f(x) 标签 -->
           <foreignObject :x="toSvgX(0.2)" :y="toSvgY1(1.2)" width="300" height="60">
             <div class="text-sky-400 text-2xl font-black" v-html="renderMath('f(x) = \sin(x)')"></div>
           </foreignObject>
@@ -242,8 +245,8 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
           <!-- 三角形 -->
           <g>
             <path :d="triangle.path" :fill="COLOR_DIFF" fill-opacity="0.2" />
-            <line :x1="pX" :y1="pY" :x2="toSvgX(currX+0.8)" :y2="pY" :stroke="COLOR_DIFF" stroke-width="3" />
-            <line :x1="toSvgX(currX+0.8)" :y1="pY" :x2="toSvgX(currX+0.8)" :y2="toSvgY1(currY + currSlope*0.8)" :stroke="COLOR_DIFF" stroke-width="3" />
+            <line :x1="pX" :y1="pY" :x2="toSvgX(currX+0.4)" :y2="pY" :stroke="COLOR_DIFF" stroke-width="3" />
+            <line :x1="toSvgX(currX+0.4)" :y1="pY" :x2="toSvgX(currX+0.4)" :y2="toSvgY1(currY + currSlope*0.4)" :stroke="COLOR_DIFF" stroke-width="3" />
             <foreignObject :x="triangle.dxLabelX" :y="triangle.dxLabelY" width="60" height="40">
               <div class="text-green-400 text-xl font-bold" v-html="renderMath('dx')"></div>
             </foreignObject>
@@ -261,7 +264,7 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
         <line :x1="pX" :y1="pY" :x2="qX" :y2="qY" stroke="white" stroke-width="2" stroke-dasharray="6 6" opacity="0.2" />
         <foreignObject :x="pX + 30" :y="(pY + qY)/2 - 35" width="220" height="70">
           <div class="bg-slate-800/90 border border-slate-600 rounded-xl flex items-center justify-center h-full">
-            <div class="text-white text-2xl font-black" v-html="renderMath('k = ' + currSlope.toFixed(3))"></div>
+            <div class="text-white text-2xl font-black" v-html="renderMath('k = ' + currSlope.toFixed(3) + '')"></div>
           </div>
         </foreignObject>
 
@@ -269,6 +272,7 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
         <g>
           <line :x1="PADDING_X" :y1="GRAPH_2_CY" :x2="WIDTH-100" :y2="GRAPH_2_CY" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
           <line :x1="toSvgX(0)" :y1="HEIGHT-30" :x2="toSvgX(0)" :y2="GRAPH_2_CY - SCALE_Y - 30" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
+          
           <foreignObject :x="WIDTH-100" :y="GRAPH_2_CY+5" width="50" height="50">
             <div class="text-slate-400 text-2xl font-bold" v-html="renderMath('x')"></div>
           </foreignObject>
@@ -283,7 +287,7 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
             </foreignObject>
           </g>
 
-          <foreignObject :x="toSvgX(0.2)" :y="GRAPH_2_CY + SCALE_Y - 40" width="300" height="60">
+          <foreignObject :x="toSvgX(0.2)" :y="GRAPH_2_CY + SCALE_Y - 20" width="300" height="60">
             <div class="text-rose-400 text-2xl font-black" v-html="renderMath('f\' (x) = \cos(x)')"></div>
           </foreignObject>
 
@@ -295,11 +299,6 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
           <line :x1="qX" :y1="qY" :x2="toSvgX(0)" :y2="qY" :stroke="COLOR_DERIV" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.5" />
         </g>
       </svg>
-
-      <!-- 暂停提示 -->
-      <div v-if="isPaused" class="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-         <span class="text-4xl font-bold bg-slate-800/80 px-8 py-4 rounded-2xl border border-slate-600 shadow-2xl">已暂停</span>
-      </div>
     </div>
   </div>
 </template>
