@@ -3,3 +3,6 @@ node_modules/
 dist/
 video_records/
 *.log
+*.png
+*.txt
+.gemini/

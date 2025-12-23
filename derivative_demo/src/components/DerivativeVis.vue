@@ -13,7 +13,7 @@ const GRAPH_1_CY = HEIGHT * 0.30;
 const GRAPH_2_CY = HEIGHT * 0.72; 
 
 const SCALE_X = 240; 
-const SCALE_Y = 180; 
+const SCALE_Y = 160; 
 
 const COLOR_FUNC = '#38bdf8'; 
 const COLOR_DERIV = '#fb7185'; 
@@ -24,7 +24,7 @@ const COLOR_AXIS = '#94a3b8';
 const progress = ref(0); 
 const isPaused = ref(false);
 const TOTAL_CYCLE = 2 * Math.PI + 0.5; 
-const DURATION_MS = 20000; // 20s per cycle 
+const DURATION_MS = 20000; 
 
 const f = (x) => Math.sin(x);
 const df = (x) => Math.cos(x);
@@ -71,12 +71,13 @@ const tangentLine = computed(() => {
 });
 
 const triangle = computed(() => {
-  const dx = 0.4;
+  const dx = 0.4; // 缩小 dx
   const dy = currSlope.value * dx;
   const xStart = pX.value;
   const yStart = pY.value;
   const xCorner = toSvgX(currX.value + dx);
   const yEnd = toSvgY1(currY.value + dy);
+  
   return {
     path: `M ${xStart} ${yStart} L ${xCorner} ${yStart} L ${xCorner} ${yEnd} Z`,
     dxLabelX: (xStart + xCorner) / 2 - 15,
@@ -93,11 +94,11 @@ const xTicks = computed(() => {
     let label = '';
     const m = Math.round(i / (Math.PI/2));
     if (m === 0) label = '0';
-    else if (m === 1) label = '\frac{\pi}{2}';
-    else if (m === 2) label = '\pi';
-    else if (m === 3) label = '\frac{3\pi}{2}';
-    else if (m === 4) label = '2\pi';
-    else label = `\frac{${m}\pi}{2}`;
+    else if (m === 1) label = '\\frac{\\pi}{2}';
+    else if (m === 2) label = '\\pi';
+    else if (m === 3) label = '\\frac{3\\pi}{2}';
+    else if (m === 4) label = '2\\pi';
+    else label = `\\frac{${m}\\pi}{2}`;
     ticks.push({ x: toSvgX(i), label: renderMath(label) });
   }
   return ticks;
@@ -134,11 +135,9 @@ const loop = (timestamp) => {
 
 onMounted(() => {
   window.derivativeDemo = { 
-    step: (manualT) => { 
-      // 这里的 manualT 应该直接映射到进度，不受 DURATION_MS 重复影响
-      progress.value = (manualT / DURATION_MS) * 2 * Math.PI; 
-    }, 
-    getDuration: () => DURATION_MS 
+    step: (manualT) => { progress.value = (manualT % DURATION_MS) / DURATION_MS * 2 * Math.PI; }, 
+    getDuration: () => DURATION_MS,
+    setPaused: (paused) => { isPaused.value = paused; }
   };
   animationFrameId = requestAnimationFrame(loop);
 });
@@ -149,20 +148,26 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
 <template>
   <div class="w-screen h-screen flex flex-col bg-slate-900 text-white overflow-hidden font-sans cursor-pointer relative" @click="togglePause">
     
+    <!-- 暂停指示器 (已移除) -->
+
+
     <!-- 顶部综合栏 -->
     <div class="flex-none h-24 flex items-center justify-between px-6 border-b border-slate-700 bg-slate-800/95 z-30 shadow-xl relative select-none" @click.stop>
+      
+      <!-- 标题区 -->
       <div class="flex flex-col mr-6 whitespace-nowrap">
         <h1 class="text-2xl font-black tracking-wider text-white">导数与微分几何意义</h1>
         <p class="text-xs text-slate-400 mt-1 tracking-widest font-medium text-center">切线斜率、导数值与微分的实时关联</p>
       </div>
 
+      <!-- 图例区 -->
       <div class="flex gap-5 text-base font-bold bg-slate-900/50 px-5 py-2 rounded-xl border border-slate-700 items-center">
         <div class="flex items-center gap-2">
-          <div class="w-3 h-3 bg-sky-400 shadow-[0_0_8px_#38bdf8]"></div>
+          <div class="w-3 h-3 bg-sky-400 rounded-sm shadow-[0_0_8px_#38bdf8]"></div>
           <span v-html="renderMath('f(x)')"></span>
         </div>
         <div class="flex items-center gap-2">
-          <div class="w-3 h-3 bg-rose-400 shadow-[0_0_8px_#fb7185]"></div>
+          <div class="w-3 h-3 bg-rose-400 rounded-sm shadow-[0_0_8px_#fb7185]"></div>
           <span v-html="renderMath('f\' (x)')"></span>
         </div>
         <div class="flex items-center gap-2">
@@ -171,27 +176,28 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
         </div>
       </div>
 
+      <!-- 核心等式监控区 -->
       <div class="flex-1 flex justify-end min-w-0 ml-4">
         <div class="flex items-center gap-4 bg-slate-900/90 px-5 py-2 rounded-xl border border-indigo-500/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center mr-1">
             <span class="text-[10px] text-slate-500 font-bold uppercase">当前 x</span>
-            <span class="text-lg text-slate-300" v-html="renderMath('x = ' + currX.toFixed(2) + '')"></span>
+            <span class="text-lg text-slate-300" v-html="renderMath('x = ' + currX.toFixed(2))"></span>
           </div>
           <div class="h-8 w-px bg-slate-700 mx-1"></div>
           <div class="flex items-center gap-3">
              <div class="flex flex-col items-center">
-               <span class="text-[10px] text-rose-500 font-bold uppercase">导数值</span>
+               <span class="text-[10px] text-rose-500 font-bold uppercase">导函数值</span>
                <span class="text-xl text-rose-400 font-bold" v-html="renderMath('f\' (x)')"></span>
              </div>
-             <div class="text-slate-600 px-1">＝</div>
+             <div class="text-lg text-slate-600 font-light px-1">＝</div>
              <div class="flex flex-col items-center">
                <span class="text-[10px] text-slate-500 font-bold uppercase">计算公式</span>
-               <span class="text-xl text-white" v-html="renderMath('\cos(x)')"></span>
+               <span class="text-xl text-white" v-html="renderMath('\\cos(x)')"></span>
              </div>
-             <div class="text-slate-600 px-1">＝</div>
+             <div class="text-lg text-slate-600 font-light px-1">＝</div>
              <div class="flex flex-col items-center">
                <span class="text-[10px] text-yellow-500 font-bold uppercase">切线斜率</span>
-               <span class="text-2xl text-yellow-400 font-black" v-html="renderMath('k = ' + currSlope.toFixed(3) + '')"></span>
+               <span class="text-2xl text-yellow-400 font-black" v-html="renderMath('k = ' + currSlope.toFixed(3))"></span>
              </div>
           </div>
         </div>
@@ -234,15 +240,20 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
               <div class="text-center text-slate-400 text-lg" v-html="tick.label"></div>
             </foreignObject>
           </g>
+          <g v-for="val in yTicks" :key="'ty1-'+val">
+             <line :x1="toSvgX(0)-10" :y1="toSvgY1(val)" :x2="toSvgX(0)" :y2="toSvgY1(val)" :stroke="COLOR_AXIS" stroke-width="2"/>
+             <foreignObject :x="toSvgX(0)-50" :y="toSvgY1(val)-15" width="40" height="30">
+               <div class="text-right text-slate-400 text-lg" v-html="renderMath(String(val))"></div>
+             </foreignObject>
+          </g>
 
           <foreignObject :x="toSvgX(0.2)" :y="toSvgY1(1.2)" width="300" height="60">
-            <div class="text-sky-400 text-2xl font-black" v-html="renderMath('f(x) = \sin(x)')"></div>
+            <div class="text-sky-400 text-xl font-black" v-html="renderMath('f(x) = \\sin(x)')"></div>
           </foreignObject>
 
           <path :d="pathSin" fill="none" :stroke="COLOR_FUNC" stroke-width="8" stroke-linecap="round" />
           <line :x1="tangentLine.x1" :y1="tangentLine.y1" :x2="tangentLine.x2" :y2="tangentLine.y2" :stroke="COLOR_TANGENT" stroke-width="5" stroke-dasharray="12 6" opacity="0.9" />
 
-          <!-- 三角形 -->
           <g>
             <path :d="triangle.path" :fill="COLOR_DIFF" fill-opacity="0.2" />
             <line :x1="pX" :y1="pY" :x2="toSvgX(currX+0.4)" :y2="pY" :stroke="COLOR_DIFF" stroke-width="3" />
@@ -264,19 +275,18 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
         <line :x1="pX" :y1="pY" :x2="qX" :y2="qY" stroke="white" stroke-width="2" stroke-dasharray="6 6" opacity="0.2" />
         <foreignObject :x="pX + 30" :y="(pY + qY)/2 - 35" width="220" height="70">
           <div class="bg-slate-800/90 border border-slate-600 rounded-xl flex items-center justify-center h-full">
-            <div class="text-white text-2xl font-black" v-html="renderMath('k = ' + currSlope.toFixed(3) + '')"></div>
+            <div class="text-white text-2xl font-black" v-html="renderMath('k = ' + currSlope.toFixed(3))"></div>
           </div>
         </foreignObject>
 
         <!-- 图表 2 -->
         <g>
           <line :x1="PADDING_X" :y1="GRAPH_2_CY" :x2="WIDTH-100" :y2="GRAPH_2_CY" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
-          <line :x1="toSvgX(0)" :y1="HEIGHT-30" :x2="toSvgX(0)" :y2="GRAPH_2_CY - SCALE_Y - 30" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
-          
+          <line :x1="toSvgX(0)" :y1="HEIGHT-30" :x2="toSvgX(0)" :y2="GRAPH_2_CY - SCALE_Y - 80" :stroke="COLOR_AXIS" stroke-width="3" marker-end="url(#arrow)" />
           <foreignObject :x="WIDTH-100" :y="GRAPH_2_CY+5" width="50" height="50">
             <div class="text-slate-400 text-2xl font-bold" v-html="renderMath('x')"></div>
           </foreignObject>
-          <foreignObject :x="toSvgX(0)-50" :y="GRAPH_2_CY - SCALE_Y - 60" width="50" height="50">
+          <foreignObject :x="toSvgX(0)-50" :y="GRAPH_2_CY - SCALE_Y - 110" width="50" height="50">
             <div class="text-slate-400 text-2xl font-bold" v-html="renderMath('y\'')"></div>
           </foreignObject>
 
@@ -286,9 +296,15 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
               <div class="text-center text-slate-400 text-lg" v-html="tick.label"></div>
             </foreignObject>
           </g>
+          <g v-for="val in yTicks" :key="'ty2-'+val">
+             <line :x1="toSvgX(0)-10" :y1="toSvgY2(val)" :x2="toSvgX(0)" :y2="toSvgY2(val)" :stroke="COLOR_AXIS" stroke-width="2"/>
+             <foreignObject :x="toSvgX(0)-50" :y="toSvgY2(val)-15" width="40" height="30">
+               <div class="text-right text-slate-400 text-lg" v-html="renderMath(String(val))"></div>
+             </foreignObject>
+          </g>
 
-          <foreignObject :x="toSvgX(0.2)" :y="GRAPH_2_CY + SCALE_Y - 20" width="300" height="60">
-            <div class="text-rose-400 text-2xl font-black" v-html="renderMath('f\' (x) = \cos(x)')"></div>
+          <foreignObject :x="toSvgX(0.2)" :y="GRAPH_2_CY + SCALE_Y - 40" width="300" height="60">
+            <div class="text-rose-400 text-2xl font-black" v-html="renderMath('f\' (x) = \\cos(x)')"></div>
           </foreignObject>
 
           <path :d="pathCos" fill="none" :stroke="COLOR_DERIV" stroke-width="8" stroke-linecap="round" />
@@ -299,6 +315,8 @@ onUnmounted(() => cancelAnimationFrame(animationFrameId));
           <line :x1="qX" :y1="qY" :x2="toSvgX(0)" :y2="qY" :stroke="COLOR_DERIV" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.5" />
         </g>
       </svg>
+
+      <!-- 暂停提示 (已移除) -->
     </div>
   </div>
 </template>

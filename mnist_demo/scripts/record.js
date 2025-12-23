@@ -5,12 +5,10 @@ import path from 'path';
 
 // Configuration
 const OUTPUT_DIR = 'video_records';
-const OUTPUT_FILE = path.join(OUTPUT_DIR, 'derivative_demo.mp4');
-const TARGET_URL = 'http://localhost:5174/'; // Consistent with README and package scripts
-const VIEWPORT = { width: 1920, height: 1080 }; // Standard 1080p
+const OUTPUT_FILE = path.join(OUTPUT_DIR, 'mnist_recognition.mp4');
+const TARGET_URL = 'http://localhost:5175/'; // Consistent with vite.config.js
+const VIEWPORT = { width: 1920, height: 1080 };
 const FPS = 60;
-// We will retrieve duration from the page, but set a safety fallback
-const MAX_FRAMES = 60 * 60; // Max 1 minute just in case
 
 async function record() {
   // Ensure output directory exists
@@ -30,17 +28,15 @@ async function record() {
   await page.goto(TARGET_URL, { waitUntil: 'networkidle0' });
 
   // Wait for the app to expose the control interface
-  await page.waitForFunction(() => !!window.derivativeDemo);
+  await page.waitForFunction(() => !!window.mnistDemo, { timeout: 60000 });
 
   // Pause the internal animation loop to prevent fighting
-  await page.evaluate(() => window.derivativeDemo.setPaused(true));
+  await page.evaluate(() => window.mnistDemo.setPaused(true));
 
   // Get animation duration
-  const durationMs = await page.evaluate(() => window.derivativeDemo.getDuration());
-  // Use the full duration from the page logic (now 20s)
-  const recordMs = durationMs; 
-  const totalFrames = Math.ceil((recordMs / 1000) * FPS);
-  console.log(`[Info] Animation Cycle: ${durationMs}ms, Recording Duration: ${recordMs}ms, Total Frames: ${totalFrames}`);
+  const durationMs = await page.evaluate(() => window.mnistDemo.getDuration());
+  const totalFrames = Math.ceil((durationMs / 1000) * FPS);
+  console.log(`[Info] Animation Cycle: ${durationMs}ms, Total Frames: ${totalFrames}`);
 
   console.log('[3/4] Starting recording process...');
   
@@ -51,7 +47,6 @@ async function record() {
     '-vcodec', 'png',
     '-r', FPS,
     '-i', '-', // Input from stdin
-    // '-vf', 'scale=1920:1080:flags=bicubic', // No scaling needed
     '-c:v', 'libx264',
     '-preset', 'veryslow',
     '-crf', '18',
@@ -62,7 +57,6 @@ async function record() {
   const ffmpeg = spawn('ffmpeg', ffmpegArgs);
   
   ffmpeg.stderr.on('data', (data) => {
-    // Uncomment for verbose ffmpeg logs
     // console.log(`FFmpeg: ${data}`);
   });
 
@@ -76,7 +70,7 @@ async function record() {
     
     // 1. Advance animation state
     await page.evaluate((t) => {
-      window.derivativeDemo.step(t);
+      window.mnistDemo.step(t);
     }, timestamp);
 
     // 2. Capture screenshot (buffer)
@@ -89,7 +83,7 @@ async function record() {
     }
 
     // Progress logging
-    if (i % 30 === 0) {
+    if (i % 60 === 0) {
       process.stdout.write(`\rRecording frame ${i + 1}/${totalFrames} (${Math.round((i/totalFrames)*100)}%)`);
     }
   }

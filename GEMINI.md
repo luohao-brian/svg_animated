@@ -32,6 +32,44 @@
     3. **视频合成**: 使用 FFmpeg 合成图片序列。
     *参考 `solar_system/scripts/record.js` 作为标准模板。*
 
-## 5. 文档维护
+## 5. 脚手架自动化搭建说明 (Scaffolding Automation)
+为确保新项目快速符合本仓库标准，请执行以下全自动化初始化流程：
+
+### 5.1 基础环境创建
+```bash
+# 1. 创建 Vite + Vue 项目
+npm create vite@latest <project_name> -- --template vue
+cd <project_name>
+
+# 2. 安装核心依赖
+npm install animejs lucide-vue-next
+npm install -D tailwindcss postcss autoprefixer puppeteer
+```
+
+### 5.2 样式与配置初始化
+```bash
+# 3. 初始化 Tailwind
+npx tailwindcss init -p
+
+# 4. 注入标准样式 (src/style.css)
+echo "@tailwind base; @tailwind components; @tailwind utilities;
+body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #020617; overflow: hidden; }" > src/style.css
+
+# 5. 配置 Vite (vite.config.js)
+# 确保包含 server: { host: true, port: 5173, strictPort: true }
+```
+
+### 5.3 录制环境配置
+```bash
+# 6. 创建目录并复制标准录制脚本
+mkdir -p scripts video_records
+cp ../solar_system/scripts/record.js scripts/
+
+# 7. 更新 package.json
+# 添加 "record": "node scripts/record.js"
+```
+
+## 6. 文档维护
 - **Global (@README.md)**: 维护环境配置（如 FFmpeg 安装）、通用架构说明和项目索引。
 - **Local (subdir/README.md)**: 维护该项目的特定动画逻辑、独有依赖和交互说明。
+- **Local (subdir/GEMINI.md)**: 维护该项目的特定视觉与剧本规范。
