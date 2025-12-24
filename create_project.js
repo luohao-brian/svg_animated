@@ -250,7 +250,7 @@ async function record() {
   console.log(\`Waiting for window.\${globalName}...\`);
   
   try {
-      await page.waitForFunction((name) => !!window[name], { timeout: 10000 }, globalName);
+      await page.waitForFunction((name) => !!window[name], { timeout: 60000 }, globalName);
   } catch (e) {
       console.error(\`Timeout waiting for window.\${globalName}. Check if App.vue exposes it correctly.\`);
       process.exit(1);
