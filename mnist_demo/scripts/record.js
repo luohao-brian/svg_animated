@@ -6,7 +6,7 @@ import path from 'path';
 // Configuration
 const OUTPUT_DIR = 'video_records';
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'mnist_recognition.mp4');
-const TARGET_URL = 'http://localhost:5175/'; // Consistent with vite.config.js
+const TARGET_URL = 'http://localhost:5176/'; // Consistent with vite.config.js
 const VIEWPORT = { width: 1920, height: 1080 };
 const FPS = 60;
 

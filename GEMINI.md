@@ -33,40 +33,27 @@
     *参考 `solar_system/scripts/record.js` 作为标准模板。*
 
 ## 5. 脚手架自动化搭建说明 (Scaffolding Automation)
-为确保新项目快速符合本仓库标准，请执行以下全自动化初始化流程：
+为确保新项目快速符合本仓库标准，且避免 `create-vite` 等工具的交互式询问，请使用根目录下的 `create_project.js` 脚本：
 
-### 5.1 基础环境创建
+### 5.1 全自动创建
 ```bash
-# 1. 创建 Vite + Vue 项目
-npm create vite@latest <project_name> -- --template vue
+# 在根目录下执行
+node create_project.js <project_name>
+```
+
+该脚本会自动执行以下操作：
+1. 创建项目目录结构（src, public, scripts）。
+2. 生成 `package.json` 并包含核心依赖 (Vue 3, Anime.js, Tailwind CSS, Puppeteer)。
+3. 配置 Vite (端口 5173) 和 Tailwind CSS。
+4. 创建基础 Vue 组件 (`App.vue` 包含动画钩子) 和样式 (`style.css`)。
+5. 复制标准录制脚本 (`scripts/record.js`) 并适配。
+6. 自动安装依赖 (`npm install`)。
+
+### 5.2 验证与启动
+创建完成后，进入项目目录并启动：
+```bash
 cd <project_name>
-
-# 2. 安装核心依赖
-npm install animejs lucide-vue-next
-npm install -D tailwindcss postcss autoprefixer puppeteer
-```
-
-### 5.2 样式与配置初始化
-```bash
-# 3. 初始化 Tailwind
-npx tailwindcss init -p
-
-# 4. 注入标准样式 (src/style.css)
-echo "@tailwind base; @tailwind components; @tailwind utilities;
-body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #020617; overflow: hidden; }" > src/style.css
-
-# 5. 配置 Vite (vite.config.js)
-# 确保包含 server: { host: true, port: 5173, strictPort: true }
-```
-
-### 5.3 录制环境配置
-```bash
-# 6. 创建目录并复制标准录制脚本
-mkdir -p scripts video_records
-cp ../solar_system/scripts/record.js scripts/
-
-# 7. 更新 package.json
-# 添加 "record": "node scripts/record.js"
+npm run dev
 ```
 
 ## 6. 文档维护

@@ -11,6 +11,25 @@
 - **样式方案**: [Tailwind CSS](https://tailwindcss.com/)
 - **动画实现**: 根据项目需求采用不同的库或原生实现 (e.g., Native SVG, Anime.js, Reveal.js, GSAP 等)。
 
+## 🚀 快速创建新项目
+
+本仓库提供了一个自动化脚手架工具，用于快速创建符合统一规范的子项目。
+
+```bash
+# 在根目录下运行 (无需交互，自动安装依赖)
+node create_project.js <project_name>
+
+# 示例
+node create_project.js my_new_demo
+```
+
+该脚本会自动：
+1.  创建标准的目录结构 (src, public, scripts)。
+2.  生成统一的配置文件 (vite, tailwind, postcss)。
+3.  对齐 `mnist_demo` 的依赖版本 (Vue 3.5+, Anime.js 3.2+)。
+4.  注入预置的视频录制脚本 (`scripts/record.js`) 和基础动画模板。
+5.  自动执行 `npm install`。
+
 ## 🎥 自动化视频录制机制
 
 本仓库实现了一套通用的高画质视频录制方案，所有子项目均支持通过统一命令生成演示视频。
@@ -30,17 +49,11 @@
 在任意子项目目录下，通常支持以下标准命令：
 
 ```bash
-# 安装依赖
-npm install
-
-# 启动开发预览 (通常在 http://localhost:5173)
+# 1. 启动开发预览 (通常在 http://localhost:5173)
 npm run dev
 
-# 执行视频录制 (需在另一终端先启动开发服务，通常指定端口 5174)
-# 1. Terminal A: 启动专用录制服务
-npm run dev -- --port 5174
-
-# 2. Terminal B: 开始录制
+# 2. 执行视频录制
+# 注意：需确保开发服务正在运行 (npm run dev)
 npm run record
 ```
 
@@ -50,10 +63,7 @@ npm run record
 | :--- | :--- | :--- |
 | **[solar_system](./solar_system)** | 交互式太阳系演示，展示行星公转与数据详情。 | Native SVG, CSS Transforms |
 | **[derivative_demo](./derivative_demo)** | 微积分可视化：双视图联动演示 $f(x)=\sin(x)$ 导数、切线斜率与微分 $dy$ 的几何关系。 | Native SVG, Vue Reactivity |
+| **[mnist_demo](./mnist_demo)** | MNIST 数据集神经网络可视化演示。 | Anime.js, SVG |
 | *(更多项目开发中...)* | | |
 
-## 🤝 贡献指南
 
-1. 新增项目时，请使用 Vue 3 + Vite + Tailwind 模板初始化。
-2. 确保实现 `scripts/record.js` 并在 `package.json` 中配置 `npm run record`。
-3. 动画组件需暴露帧控制接口以支持录制。
