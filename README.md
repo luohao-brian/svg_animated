@@ -64,6 +64,7 @@ npm run record
 | **[solar_system](./solar_system)** | 交互式太阳系演示，展示行星公转与数据详情。 | Native SVG, CSS Transforms |
 | **[derivative_demo](./derivative_demo)** | 微积分可视化：双视图联动演示 $f(x)=\sin(x)$ 导数、切线斜率与微分 $dy$ 的几何关系。 | Native SVG, Vue Reactivity |
 | **[embedding_demo](./embedding_demo)** | NLP Embedding 可视化：从 MBTI 性格测试类比词向量，展示余弦相似度与语义聚类。 | Anime.js, SVG, Vue 3 |
+| **[speculative_decoding_demo](./speculative_decoding_demo)** | LLM 投机解码可视化：基于“主编与实习生”隐喻，深度解析带宽瓶颈、拒绝采样与 KV Cache 回滚。 | Vue 3, Anime.js, Tailwind CSS |
 | **[mnist_demo](./mnist_demo)** | MNIST 数据集神经网络可视化演示。 | Anime.js, SVG |
 | *(更多项目开发中...)* | | |
 
